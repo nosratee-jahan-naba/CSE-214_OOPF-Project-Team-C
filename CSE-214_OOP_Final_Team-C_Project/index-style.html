@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blood Bank Management System</title>
+  <style>
+    :root{
+      --bg: #0f172a;           /* slate-900 */
+      --panel: #111827;        /* gray-900 */
+      --soft: #1f2937;         /* gray-800 */
+      --muted: #94a3b8;        /* slate-400 */
+      --text: #e5e7eb;         /* gray-200 */
+      --accent: #ef4444;       /* red-500 */
+      --accent-2: #22c55e;     /* green-500 */
+      --accent-3: #3b82f6;     /* blue-500 */
+      --card: #0b1220;         /* custom */
+      --ring: #334155;         /* slate-600 */
+      --warning: #f59e0b;      /* amber-500 */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(239,68,68,.15), transparent 60%),
+                  radial-gradient(900px 600px at 10% 110%, rgba(59,130,246,.12), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    .container{ max-width: 1100px; margin-inline: auto; padding: 24px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .title{
+      display:flex; align-items:center; gap:12px; letter-spacing:.3px;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #fb7185);
+      box-shadow: var(--shadow);
+    }
+    h1{ font-size: clamp(22px, 3.2vw, 32px); margin:0; }
+    .subtitle{ color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+    .grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap: 20px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header{ padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,.06); display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .card-title{ font-weight: 700; letter-spacing:.2px; }
+    .card-body{ padding: 18px; }
+
+    .row{ display:grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .col-12{ grid-column: span 12; }
+    .col-6{ grid-column: span 6; }
+    .col-4{ grid-column: span 4; }
+    .col-3{ grid-column: span 3; }
+    @media (max-width: 720px){ .col-6,.col-4,.col-3{ grid-column: span 12; } }
+
+    label{ display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input, select{ width:100%; padding: 12px 12px; border-radius: 12px; border: 1px solid var(--ring); background: var(--soft); color: var(--text); outline: none; }
+    input:focus, select:focus{ border-color: var(--accent-3); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; }
+    button{
+      appearance:none; border: 0; cursor:pointer; padding: 10px 14px; border-radius: 12px; font-weight: 700; letter-spacing:.2px;
+      background: var(--accent-3); color: white; box-shadow: var(--shadow);
+    }
+    button.secondary{ background: var(--soft); color: var(--text); border:1px solid var(--ring); }
+    button.warn{ background: var(--warning); color: #111; }
+    button.danger{ background: var(--accent); }
+    .chip{ display:inline-flex; align-items:center; gap:8px; background: #0b1220; border:1px solid var(--ring); color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+
+    .table-wrap{ overflow:auto; border-radius: 12px; border:1px solid rgba(255,255,255,.06); }
+    table{ width:100%; border-collapse: collapse; background: var(--card); }
+    th, td{ padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; }
+    th{ position: sticky; top:0; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); font-size: 12px; color: var(--muted); backdrop-filter: blur(6px); }
+    tr:hover td{ background: rgba(255,255,255,.02); }
+
+    .badge{ padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; display:inline-block; }
+    .yes{ background: rgba(34,197,94,.15); color: #86efac; border:1px solid rgba(34,197,94,.35); }
+    .no{ background: rgba(239,68,68,.15); color: #fca5a5; border:1px solid rgba(239,68,68,.35); }
+
+    .toast{ position: fixed; right: 16px; bottom: 16px; background: var(--panel); border:1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); display:none; }
+
+    .help{ color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .foot{ color: var(--muted); font-size: 12px; text-align:center; margin-top: 22px; }
+    a{ color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">
+        <div class="logo">BB</div>
+        <div>
+          <h1>Blood Bank Management System</h1>
+        </div>
+      </div>
+      <div class="chip" id="donorCount">Total Donors: 0</div>
+    </header>
+
+    <div class="grid">
+      <!-- Add Donor Card -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Add Donor</div>
+          <div class="actions">
+            <button class="secondary" id="loadDemo">Load Demo</button>
+            <button class="warn" id="clearForm">Clear Form</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="donorForm">
+            <div class="row">
+              <div class="col-6">
+                <label>Name</label>
+                <input required id="name" placeholder="e.g., Areeba Khan" />
+              </div>
+              <div class="col-3">
+                <label>Gender</label>
+                <select id="gender" required>
+                  <option value="">Select</option>
+                  <option>M</option>
+                  <option>F</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label>Blood Type</label>
+                <select id="bloodType" required>
+                  <option value="">Select</option>
+                  <option>A+</option><option>A-</option>
+                  <option>B+</option><option>B-</option>
+                  <option>AB+</option><option>AB-</option>
+                  <option>O+</option><option>O-</option>
+                </select>
+              </div>
+
+              <div class="col-6">
+                <label>Contact Number</label>
+                <input id="contact" type="tel" placeholder="e.g., 01XXXXXXXXX" />
+              </div>
+              <div class="col-6">
+                <label>Gmail Address</label>
+                <input id="gmail" type="email" placeholder="name@gmail.com" />
+              </div>
+
+              <div class="col-4">
+                <label>City</label>
+                <input id="city" placeholder="e.g., Comilla" />
+              </div>
+              <div class="col-4">
+                <label>Area</label>
+                <input id="area" placeholder="e.g., BAIUST" />
+              </div>
+              <div class="col-4">
+                <label>Last Donation Date</label>
+                <input id="lastDate" type="date" />
+              </div>
+
+              <div class="col-6">
+                <label>Available in Emergency?</label>
+                <select id="emergency" required>
+                  <option value="1">Yes</option>
+                  <option value="0">No</option>
+                </select>
+              </div>
+
+              <div class="col-12 actions" style="margin-top:10px">
+                <button type="submit">Save Donor</button>
+                <button type="button" class="secondary" id="resetAll">Clear All Data</button>
+              </div>
+            </div>
+            <div class="help">Tip: Only <b>Name</b>, <b>Gender</b>, <b>Blood Type</b>, and <b>Emergency</b> are required. Others are optional.</div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Donors / Search Card -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Find & Display Donors</div>
+          <div class="actions">
+            <button id="showAll" class="secondary">Show All</button>
+            <button id="filterEmergency">Emergency Only</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row" style="margin-bottom:12px">
+            <div class="col-6">
+              <label>Search by Blood Type</label>
+              <input id="searchBlood" placeholder="e.g., O+" />
+            </div>
+            <div class="col-6">
+              <label>Quick Search (Name/City/Area)</label>
+              <input id="searchQuery" placeholder="Type to filter..." />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="donorTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Blood</th>
+                  <th>Contact</th>
+                  <th>Gmail</th>
+                  <th>City</th>
+                  <th>Area</th>
+                  <th>Last Donation</th>
+                  <th>Emergency</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <p class="foot">Built for learning. Mirrors the console menu: Add, Display, Search by blood type, and Emergency filter — all in the browser. </p>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // --- Utilities ---
+    const el = (id) => document.getElementById(id);
+    const toast = (msg) => { const t = el('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1600); };
+
+    const STORAGE_KEY = 'blood_bank_donors_v1';
+
+    const load = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const save = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+
+    const normalizeBlood = (s) => (s||'').toUpperCase().replace(/\s+/g,'');
+
+    // --- State ---
+    let donors = load();
+
+    function updateCount(){ el('donorCount').textContent = `Total Donors: ${donors.length}`; }
+
+    function render(filter={}){
+      const { blood, emergencyOnly=false, q='' } = filter;
+      const tbody = document.querySelector('#donorTable tbody');
+      tbody.innerHTML = '';
+
+      const rows = donors
+        .map((d, idx) => ({...d, idx: idx+1}))
+        .filter(d => !blood || normalizeBlood(d.bloodType) === normalizeBlood(blood))
+        .filter(d => !emergencyOnly || String(d.availableInEmergency) === '1')
+        .filter(d => {
+          if(!q) return true; const s = (q||'').toLowerCase();
+          return [d.name, d.city, d.area].some(v => (v||'').toLowerCase().includes(s));
+        });
+
+      if(rows.length === 0){
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 11; td.style.textAlign='center'; td.style.color='var(--muted)';
+        td.textContent = 'No donors found.'; tr.appendChild(td); tbody.appendChild(tr);
+      } else {
+        rows.forEach(d => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${d.idx}</td>
+            <td>${escapeHtml(d.name)}</td>
+            <td>${escapeHtml(d.gender||'')}</td>
+            <td><strong>${escapeHtml(d.bloodType||'')}</strong></td>
+            <td>${escapeHtml(d.contact||'')}</td>
+            <td>${escapeHtml(d.gmail||'')}</td>
+            <td>${escapeHtml(d.city||'')}</td>
+            <td>${escapeHtml(d.area||'')}</td>
+            <td>${formatDate(d.lastDonationDate)||''}</td>
+            <td>${d.availableInEmergency==='1' || d.availableInEmergency===1 ? '<span class="badge yes">Yes</span>' : '<span class="badge no">No</span>'}</td>
+            <td>
+              <button class="secondary" data-edit="${d.id}">Edit</button>
+              <button class="danger" data-del="${d.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Wire row actions
+      tbody.querySelectorAll('button[data-del]').forEach(btn => btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del');
+        donors = donors.filter(d => d.id !== id); save(donors); render(currentFilter()); updateCount(); toast('Donor removed');
+      }));
+
+      tbody.querySelectorAll('button[data-edit]').forEach(btn => btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-edit');
+        const d = donors.find(x => x.id === id); if(!d) return;
+        // Fill form for quick edit
+        el('name').value = d.name||'';
+        el('gender').value = d.gender||'';
+        el('bloodType').value = d.bloodType||'';
+        el('contact').value = d.contact||'';
+        el('gmail').value = d.gmail||'';
+        el('city').value = d.city||'';
+        el('area').value = d.area||'';
+        el('lastDate').value = d.lastDonationDate||'';
+        el('emergency').value = String(d.availableInEmergency||'0');
+        el('donorForm').setAttribute('data-editing', id);
+        toast('Editing mode: update and Save');
+      }));
+    }
+
+    function currentFilter(){
+      return {
+        blood: el('searchBlood').value,
+        emergencyOnly: el('filterEmergency').classList.contains('active'),
+        q: el('searchQuery').value
+      };
+    }
+
+    function formatDate(v){ if(!v) return ''; try { const d = new Date(v); if(Number.isNaN(d)) return v; return d.toLocaleDateString(); } catch { return v; } }
+    function escapeHtml(str){ return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
+
+    // --- Event handlers ---
+    el('donorForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = el('name').value.trim();
+      const gender = el('gender').value;
+      const bloodType = el('bloodType').value;
+      const contact = el('contact').value.trim();
+      const gmail = el('gmail').value.trim();
+      const city = el('city').value.trim();
+      const area = el('area').value.trim();
+      const lastDonationDate = el('lastDate').value;
+      const availableInEmergency = el('emergency').value; // '1' or '0'
+
+      if(!name || !gender || !bloodType){ toast('Please fill required fields'); return; }
+
+      const editingId = el('donorForm').getAttribute('data-editing');
+      if(editingId){
+        donors = donors.map(d => d.id === editingId ? { ...d, name, gender, bloodType, contact, gmail, city, area, lastDonationDate, availableInEmergency } : d);
+        el('donorForm').removeAttribute('data-editing');
+        toast('Donor updated');
+      } else {
+        donors.push({ id: crypto.randomUUID(), name, gender, bloodType, contact, gmail, city, area, lastDonationDate, availableInEmergency, createdAt: Date.now() });
+        toast('Donor saved');
+      }
+      save(donors); updateCount(); render(currentFilter());
+      e.target.reset();
+    });
+
+    el('clearForm').addEventListener('click', () => { el('donorForm').reset(); el('donorForm').removeAttribute('data-editing'); toast('Form cleared'); });
+
+    el('resetAll').addEventListener('click', () => {
+      if(confirm('Delete all saved donors?')){ donors = []; save(donors); render(currentFilter()); updateCount(); toast('All data cleared'); }
+    });
+
+    el('showAll').addEventListener('click', () => {
+      el('searchBlood').value=''; el('searchQuery').value=''; el('filterEmergency').classList.remove('active'); render(currentFilter());
+    });
+
+    el('filterEmergency').addEventListener('click', (e) => {
+      e.currentTarget.classList.toggle('active');
+      render(currentFilter());
+      toast(e.currentTarget.classList.contains('active') ? 'Showing emergency donors' : 'Showing all donors');
+    });
+
+    el('searchBlood').addEventListener('input', () => render(currentFilter()));
+    el('searchQuery').addEventListener('input', () => render(currentFilter()));
+
+    el('loadDemo').addEventListener('click', () => {
+      const demo = [
+        {name:'Areeba Khan', gender:'F', bloodType:'O+', contact:'01700000000', gmail:'areeba@gmail.com', city:'Cumilla', area:'BAIUST', lastDonationDate:'2025-07-15', availableInEmergency:'1'},
+        {name:'Shafin Rahman', gender:'M', bloodType:'A-', contact:'01800000001', gmail:'shafin@gmail.com', city:'Dhaka', area:'Mirpur', lastDonationDate:'2025-08-01', availableInEmergency:'0'},
+        {name:'Sadia Nawal', gender:'F', bloodType:'AB+', contact:'01600000002', gmail:'sadia@gmail.com', city:'Chattogram', area:'GEC', lastDonationDate:'2025-06-20', availableInEmergency:'1'}
+      ].map(x => ({ id: crypto.randomUUID(), createdAt: Date.now(), ...x }));
+      donors = donors.concat(demo); save(donors); updateCount(); render(currentFilter()); toast('Demo donors added');
+    });
+
+    // Initial paint
+    updateCount();
+    render();
+  </script>
+</body>
+</html>
